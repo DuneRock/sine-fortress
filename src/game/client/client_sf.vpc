@@ -112,6 +112,11 @@ $Project "Client (SF)"
 				}
 			}
 			$File	"$SRCDIR\common\GameUI\cvarslider.h"
+
+			$File	"$SRCDIR\game\shared\engine_patch.cpp"
+			$File	"$SRCDIR\game\shared\engine_patch.h"
+			$File	"$SRCDIR\game\shared\util\os_utils.cpp"
+			$File	"$SRCDIR\game\shared\util\os_utils.h"
 		}
 
 		$Folder	"Economy"
