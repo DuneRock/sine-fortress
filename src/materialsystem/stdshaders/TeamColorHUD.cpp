@@ -63,11 +63,13 @@ SHADER_PARAM(ALPHATESTREFERENCE, SHADER_PARAM_TYPE_FLOAT, "", "")
 // Main Features here!
 SHADER_PARAM(BLENDTINTBYBASEALPHA, SHADER_PARAM_TYPE_BOOL, "", "")
 SHADER_PARAM(BLENDTINTCOLOROVERBASE, SHADER_PARAM_TYPE_FLOAT, "", "")
+SHADER_PARAM(REDCOLOR, SHADER_PARAM_TYPE_COLOR, "", "")
+SHADER_PARAM(BLUECOLOR, SHADER_PARAM_TYPE_COLOR, "", "")
 
-// For feeding a dedicated AlphaTexture
-// When using $BlendTintByBaseAlpha and $Detail, uses this for DistanceAlpha!
-SHADER_PARAM(ALPHATEXTURE, SHADER_PARAM_TYPE_TEXTURE, "", "")
-SHADER_PARAM(ALPHATEXTUREFRAME, SHADER_PARAM_TYPE_INTEGER, "", "")
+SHADER_PARAM(COLORMASK, SHADER_PARAM_TYPE_TEXTURE, "", "")
+SHADER_PARAM(COLORMASKFRAME, SHADER_PARAM_TYPE_INTEGER, "", "")
+
+
 END_SHADER_PARAMS
 
 	SHADER_INIT_PARAMS()
@@ -108,6 +110,9 @@ END_SHADER_PARAMS
 		if (!IsDefined(OUTLINEALPHA))
 			params[OUTLINEALPHA]->SetFloatValue(1.0f);
 
+		if (!IsDefined(COLORMASK))
+			params[COLORMASK]->SetStringValue("dev/black");
+
 		// Warnings!
 		// ========================= //
 		if (IsDefined(DETAILBLENDMODE))
@@ -143,8 +148,8 @@ END_SHADER_PARAMS
 				LoadTexture(DETAIL, TEXTUREFLAGS_SRGB);
 		}
 
-		if (IsDefined(ALPHATEXTURE))
-			LoadTexture(ALPHATEXTURE);
+		if (IsDefined(COLORMASK))
+			LoadTexture(COLORMASK);
 	}
 	
 	SHADER_FALLBACK
@@ -173,7 +178,7 @@ END_SHADER_PARAMS
 		// Textures
 		bool bHasBaseTexture = IsDefined(BASETEXTURE) && params[BASETEXTURE]->IsTexture();
 		bool bHasDetailTexture = IsDefined(DETAIL) && params[DETAIL]->IsTexture();
-		bool bHasAlphaTexture = IsDefined(ALPHATEXTURE) && params[ALPHATEXTURE]->IsTexture();
+		//bool bHasAlphaTexture = IsDefined(ALPHATEXTURE) && params[ALPHATEXTURE]->IsTexture();
 		bool bHasDistanceAlpha = params[DISTANCEALPHA]->GetIntValue() != 0;
 
 		// Need this for Static Combo, sRGBRead and BlendType
@@ -198,7 +203,7 @@ END_SHADER_PARAMS
 		nBlendType = EvaluateBlendRequirements(BASETEXTURE, true, nDetailTranslucencyTexture);
 
 		// If we have a $AlphaTexture, Translucent can be used ( BT_BLEND )
-		if (bHasAlphaTexture && IS_FLAG_SET(MATERIAL_VAR_TRANSLUCENT) && !IS_FLAG_SET(MATERIAL_VAR_ALPHATEST))
+		if (/*bHasAlphaTexture &&*/ IS_FLAG_SET(MATERIAL_VAR_TRANSLUCENT) && !IS_FLAG_SET(MATERIAL_VAR_ALPHATEST))
 			nBlendType = BT_BLEND;
 
 		bool bIsFullyOpaque = (nBlendType != BT_BLENDADD) && (nBlendType != BT_BLEND) && !bAlphaTest;
@@ -281,11 +286,11 @@ END_SHADER_PARAMS
 					pShaderShadow->EnableSRGBRead(SHADER_SAMPLER1, true);
 			}
 
-			if (bHasAlphaTexture)
-			{
+			// if (bHasAlphaTexture)
+			// {
 				// Never sRGB!! Linear Values!!!
 				pShaderShadow->EnableTexture(SHADER_SAMPLER2, true);
-			}
+			//}
 
 			bool bDistanceAlphaFromDetail = false;
 			bool bSoftMask = false;
@@ -340,7 +345,7 @@ END_SHADER_PARAMS
 			SET_STATIC_PIXEL_SHADER_COMBO(BLENDTINTBYXALPHA, bBlendTintByBaseAlpha);
 			SET_STATIC_PIXEL_SHADER_COMBO(VERTEXRGB, bHasVertexRGB);
 			SET_STATIC_PIXEL_SHADER_COMBO(VERTEXA, bHasVertexA);
-			SET_STATIC_PIXEL_SHADER_COMBO(ALPHATEXTURE, bHasAlphaTexture);
+			//SET_STATIC_PIXEL_SHADER_COMBO(ALPHATEXTURE, bHasAlphaTexture);
 			SET_STATIC_PIXEL_SHADER(teamcolorhud_ps20b);
 		}
 
@@ -391,8 +396,8 @@ END_SHADER_PARAMS
 			}
 
 			// s2
-			if (bHasAlphaTexture)
-				BindTexture(SHADER_SAMPLER2, ALPHATEXTURE, ALPHATEXTUREFRAME);
+			//if (bHasAlphaTexture)
+				BindTexture(SHADER_SAMPLER2, COLORMASK, COLORMASKFRAME);
 
 			if (bHasDistanceAlpha)
 			{
@@ -454,12 +459,18 @@ END_SHADER_PARAMS
 					flOutlineEnd1,
 					flOutlineEnd0,
 					flOutlineStart1,
+					// c10 - Red team color (filled in a second)
+					1, 0, 0, 1,
+					// c11 - Blue team color (filled in a second)
+					0, 0, 1, 1
 				};
 
 				params[GLOWCOLOR]->GetVecValue(flConsts + 4, 3);
 				params[OUTLINECOLOR]->GetVecValue(flConsts + 12, 3);
+				//params[REDCOLOR]->GetVecValue(flConsts + 20, 3);
+				//params[BLUECOLOR]->GetVecValue(flConsts + 24, 3);
 
-				pShaderAPI->SetPixelShaderConstant(5, flConsts, 5);
+				pShaderAPI->SetPixelShaderConstant(5, flConsts, 7);
 
 			}
 
