@@ -459,20 +459,27 @@ END_SHADER_PARAMS
 					flOutlineEnd1,
 					flOutlineEnd0,
 					flOutlineStart1,
-					// c10 - Red team color (filled in a second)
-					1, 0, 0, 1,
-					// c11 - Blue team color (filled in a second)
-					0, 0, 1, 1
 				};
 
 				params[GLOWCOLOR]->GetVecValue(flConsts + 4, 3);
 				params[OUTLINECOLOR]->GetVecValue(flConsts + 12, 3);
-				//params[REDCOLOR]->GetVecValue(flConsts + 20, 3);
-				//params[BLUECOLOR]->GetVecValue(flConsts + 24, 3);
 
-				pShaderAPI->SetPixelShaderConstant(5, flConsts, 7);
+				pShaderAPI->SetPixelShaderConstant(5, flConsts, 5);
 
 			}
+
+			float flColorConsts[] = {
+				// c10 Red team
+				0,0,0,0,
+				// c11 Blue Team
+				0,0,0,0
+			};
+
+			params[REDCOLOR]->GetVecValue(flColorConsts, 3);
+			params[BLUECOLOR]->GetVecValue(flColorConsts + 4, 3);
+
+			SetPixelShaderConstantGammaToLinear(10, flColorConsts, 2);
+
 
 			DECLARE_DYNAMIC_VERTEX_SHADER(teamcolorhud_vs20);
 			SET_DYNAMIC_VERTEX_SHADER_COMBO(SKINNING, pShaderAPI->GetCurrentNumBones() > 0);
