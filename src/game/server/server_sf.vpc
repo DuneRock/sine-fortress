@@ -68,10 +68,10 @@ $Project "Server (SF)"
 			$File	"$SRCDIR\common\protoutils.cpp"
 			$File	"$SRCDIR\common\protoutils.h"
 
-			$File	"$SRCDIR\game\shared\engine_patch.cpp"
-			$File	"$SRCDIR\game\shared\engine_patch.h"
-			$File	"$SRCDIR\game\shared\util\os_utils.cpp"
-			$File	"$SRCDIR\game\shared\util\os_utils.h"
+			//$File	"$SRCDIR\game\shared\engine_patch.cpp"
+			//$File	"$SRCDIR\game\shared\engine_patch.h"
+			//$File	"$SRCDIR\game\shared\util\os_utils.cpp"
+			//$File	"$SRCDIR\game\shared\util\os_utils.h"
 		}
 
 		$Folder	"Economy"
@@ -132,6 +132,7 @@ $Project "Server (SF)"
 			$File	"$SRCDIR\game\shared\sf\tf_projectile_goo.h"
 			$File	"$SRCDIR\game\shared\sf\tf_projectile_energy_laser.cpp"
 			$File	"$SRCDIR\game\shared\sf\tf_projectile_energy_laser.h"
+
 		}
 
 		$Folder	"TF"
