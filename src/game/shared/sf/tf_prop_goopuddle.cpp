@@ -404,6 +404,7 @@ CTFPropGooPuddle::C_TFPropGooPuddle()
 	m_iInitializedPuddles = 0;
 	m_iActivePuddles = 0;
 	m_bStopPlayingLoopSound = false;
+	m_nLoopSoundGuid = -1;
 }
 
 CTFPropGooPuddle::~C_TFPropGooPuddle()
@@ -554,10 +555,8 @@ void CTFPropGooPuddle::ClientThink()
 	}
 	if (m_nGooType == TF_GOO_TOXIC)
 	{
-		bool bLoopingSoundIsPlaying = enginesound->IsSoundStillPlaying(m_nLoopSoundGuid);
-
-		//If the active sound isn't already playing, and we have over half of the puddles active, play the active looping sound
-		if (!bLoopingSoundIsPlaying && m_iInitializedPuddles != 0 && !m_bStopPlayingLoopSound)
+		//If the active sound isn't already playing, and we have puddles, play the active looping sound
+		if (m_nLoopSoundGuid == -1 && m_iInitializedPuddles != 0 && !m_bStopPlayingLoopSound)
 		{
 			if (m_bCritical)
 				EmitSound("Weapon_GooGun.AcidPoolActiveLoopCrit");
@@ -567,9 +566,7 @@ void CTFPropGooPuddle::ClientThink()
 			m_nLoopSoundGuid = enginesound->GetGuidForLastSoundEmitted();
 		}
 
-		bLoopingSoundIsPlaying = enginesound->IsSoundStillPlaying(m_nLoopSoundGuid);
-
-		if (bLoopingSoundIsPlaying)
+		if (enginesound->IsSoundStillPlaying(m_nLoopSoundGuid))
 		{
 			//Ramp up volume over 4 seconds after spawning
 			float flPercentStarted = Clamp((gpGlobals->curtime - m_flSpawnTimestamp) / 4.0f, 0.0f, 1.0f);
