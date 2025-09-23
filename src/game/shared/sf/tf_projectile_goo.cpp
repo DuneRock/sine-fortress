@@ -278,7 +278,10 @@ void CTFProjectile_Goo::GooTouch(CBaseEntity* pOther)
 		// Only explode on teammates if we are allowed to (like after the teammate immunity
 		// phase is up) -Vruk
 		if (!(GetTeamNumber() == pOther->GetTeamNumber() && !CanCollideWithTeammates()))
+		{
 			Explode(&pTrace, GetDamageType());
+			Expand();
+		}
 	}
 	// We should bounce off of certain surfaces (resupply cabinets, spawn doors, etc.)
 	else
