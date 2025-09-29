@@ -19,14 +19,12 @@ class teamcolorhud_ps20b_Static_Index
 	unsigned int m_nBLENDTINTBYXALPHA : 2;
 	unsigned int m_nVERTEXRGB : 2;
 	unsigned int m_nVERTEXA : 2;
-	unsigned int m_nALPHATEXTURE : 2;
 #ifdef _DEBUG
 	bool m_bDISTANCEALPHAMODE : 1;
 	bool m_bDETAILTEXTUREMODE : 1;
 	bool m_bBLENDTINTBYXALPHA : 1;
 	bool m_bVERTEXRGB : 1;
 	bool m_bVERTEXA : 1;
-	bool m_bALPHATEXTURE : 1;
 #endif	// _DEBUG
 public:
 	void SetDISTANCEALPHAMODE( int i )
@@ -74,15 +72,6 @@ public:
 #endif	// _DEBUG
 	}
 
-	void SetALPHATEXTURE( int i )
-	{
-		Assert( i >= 0 && i <= 1 );
-		m_nALPHATEXTURE = i;
-#ifdef _DEBUG
-		m_bALPHATEXTURE = true;
-#endif	// _DEBUG
-	}
-
 	teamcolorhud_ps20b_Static_Index(  )
 	{
 		m_nDISTANCEALPHAMODE = 0;
@@ -90,26 +79,23 @@ public:
 		m_nBLENDTINTBYXALPHA = 0;
 		m_nVERTEXRGB = 0;
 		m_nVERTEXA = 0;
-		m_nALPHATEXTURE = 0;
 #ifdef _DEBUG
 		m_bDISTANCEALPHAMODE = false;
 		m_bDETAILTEXTUREMODE = false;
 		m_bBLENDTINTBYXALPHA = false;
 		m_bVERTEXRGB = false;
 		m_bVERTEXA = false;
-		m_bALPHATEXTURE = false;
 #endif	// _DEBUG
 	}
 
 	int GetIndex() const
 	{
-		Assert( m_bDISTANCEALPHAMODE && m_bDETAILTEXTUREMODE && m_bBLENDTINTBYXALPHA && m_bVERTEXRGB && m_bVERTEXA && m_bALPHATEXTURE );
-		AssertMsg( !( ( m_nDISTANCEALPHAMODE >= 8 ) && ( ( m_nDETAILTEXTUREMODE == 0 ) || ( m_nALPHATEXTURE == 1 ) ) ), "Invalid combo combination ( ( DISTANCEALPHAMODE >= 8 ) && ( ( DETAILTEXTUREMODE == 0 ) || ( ALPHATEXTURE == 1 ) ) )" );
-		return ( 1 * m_nDISTANCEALPHAMODE ) + ( 15 * m_nDETAILTEXTUREMODE ) + ( 165 * m_nBLENDTINTBYXALPHA ) + ( 330 * m_nVERTEXRGB ) + ( 660 * m_nVERTEXA ) + ( 1320 * m_nALPHATEXTURE ) + 0;
+		Assert( m_bDISTANCEALPHAMODE && m_bDETAILTEXTUREMODE && m_bBLENDTINTBYXALPHA && m_bVERTEXRGB && m_bVERTEXA );
+		return ( 1 * m_nDISTANCEALPHAMODE ) + ( 15 * m_nDETAILTEXTUREMODE ) + ( 165 * m_nBLENDTINTBYXALPHA ) + ( 330 * m_nVERTEXRGB ) + ( 660 * m_nVERTEXA ) + 0;
 	}
 };
 
-#define shaderStaticTest_teamcolorhud_ps20b psh_forgot_to_set_static_DISTANCEALPHAMODE + psh_forgot_to_set_static_DETAILTEXTUREMODE + psh_forgot_to_set_static_BLENDTINTBYXALPHA + psh_forgot_to_set_static_VERTEXRGB + psh_forgot_to_set_static_VERTEXA + psh_forgot_to_set_static_ALPHATEXTURE
+#define shaderStaticTest_teamcolorhud_ps20b psh_forgot_to_set_static_DISTANCEALPHAMODE + psh_forgot_to_set_static_DETAILTEXTUREMODE + psh_forgot_to_set_static_BLENDTINTBYXALPHA + psh_forgot_to_set_static_VERTEXRGB + psh_forgot_to_set_static_VERTEXA
 
 
 class teamcolorhud_ps20b_Dynamic_Index

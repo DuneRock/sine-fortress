@@ -7,7 +7,6 @@
 // STATIC: "BLENDTINTBYXALPHA"			 "0..1"
 // STATIC: "VERTEXRGB"					"0..1"
 // STATIC: "VERTEXA"					"0..1"
-// STATIC: "ALPHATEXTURE"				"0..1"
 
 #define SRGB_INPUT_ADAPTER 0
 #define WRITEWATERFOGTODESTALPHA 0
@@ -17,6 +16,7 @@
 // dead stat: "DEPTHBLEND"				"0..1"
 // dead dyn: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"
 // dead dyn: "PIXELFOGTYPE"				"0..2"
+// dead stat: "ALPHATEXTURE"			"0..1"
 
 // Consistent with previous Skips
 // Can still use Distance Alpha when sourcing from Detail Texture so account for that !!
@@ -142,7 +142,7 @@ const float4 g_DetailTintAndFactor	: register(c2);
 
 sampler BaseTextureSampler		: register( s0 );
 sampler DetailSampler			: register( s1 );
-sampler AlphaSampler			: register( s2 );
+sampler ColorSampler			: register( s2 );
 
 struct PS_INPUT
 {
@@ -173,6 +173,8 @@ const float4 g_OutlineColor : register( c8 );
 
 const float4 g_OutlineParams : register( c9 );
 // these are ordered this way for optimal ps20 swizzling
+const float4 g_RedColor				: register(c10);
+const float4 g_BlueColor			: register(c11);
 #define OUTLINE_MIN_VALUE0 g_OutlineParams.x
 #define OUTLINE_MAX_VALUE1 g_OutlineParams.y
 #define OUTLINE_MAX_VALUE0 g_OutlineParams.z
@@ -186,6 +188,7 @@ LPREVIEW_PS_OUT main( PS_INPUT i ) : COLOR
 float4 main( PS_INPUT i ) : COLOR
 #endif
 */
+#define white float3(1,1,1)
 
 float4 main( PS_INPUT i ) : COLOR
 {
@@ -195,22 +198,21 @@ float4 main( PS_INPUT i ) : COLOR
 		f4BaseTexture.rgb = GammaToLinear( f4BaseTexture.rgb );
 	#endif
 
-#if ALPHATEXTURE
-	// Red Channel ( First Channel ) of the $AlphaTexture
-	float4 AlphaTexture = tex2D(AlphaSampler, i.TexCoord0.xy);
-	float f1FinalAlpha = AlphaTexture.r;
-	float f1DistAlphaMask = AlphaTexture.r;
-
-#elif (DISTANCEALPHA && !DISTANCEALPHAFROMDETAIL)
+	// $ColorMask
+	float4 ColorMask = tex2D(ColorSampler, i.TexCoord0.xy);
+	float f1FinalAlpha = f4BaseTexture.a;
 	float f1DistAlphaMask = f4BaseTexture.a;
-#endif
+
+	f4BaseTexture.rgb *= ((white * (1 - ColorMask.r)) + (g_RedColor.rgb * ColorMask.r));
+	f4BaseTexture.rgb *= ((white * (1 - ColorMask.b)) + (g_BlueColor.rgb * ColorMask.b));
+
 
 #if DETAILTEXTURE
 	float4 f4DetailTexture = tex2D(DetailSampler, i.TexCoord0.zw);
 	f4DetailTexture.rgb *= g_DetailTint;
 	
 	#if (DISTANCEALPHA && DISTANCEALPHAFROMDETAIL)
-		float f1DistAlphaMask = f4DetailTexture.a;
+		f1DistAlphaMask = f4DetailTexture.a;
 		f4DetailTexture.a = 1.0; // make tcombine treat as 1.0
 	#endif
 
@@ -241,17 +243,12 @@ float4 main( PS_INPUT i ) : COLOR
 	#if SOFT_MASK
 		mskUsed = smoothstep( SOFT_MASK_MIN, SOFT_MASK_MAX, f1DistAlphaMask );
 
-		#if ALPHATEXTURE
-			f1FinalAlpha = mskUsed;
-		#else
-			f4BaseTexture.a *= mskUsed;
-		#endif
+		f1FinalAlpha = mskUsed;
+
 	#else
 		mskUsed = f1DistAlphaMask >= 0.5;
 
-		#if ALPHATEXTURE
-			f1FinalAlpha = mskUsed;
-		#elif DETAILTEXTURE
+		#if DETAILTEXTURE
 			f4BaseTexture.a *= mskUsed;
 		#else
 			f4BaseTexture.a = mskUsed;
@@ -279,9 +276,6 @@ float4 main( PS_INPUT i ) : COLOR
 		f4BaseTexture.rgb *= g_DiffuseModulation.rgb;
 	#endif
 
-	#if !ALPHATEXTURE
-		float f1FinalAlpha = f4BaseTexture.a;
-	#endif
 
 	// Nope
 //	f1FinalAlpha *= g_DiffuseModulation.w;
