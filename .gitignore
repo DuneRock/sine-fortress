@@ -57,6 +57,7 @@ config.cfg
 
 # shader files
 *.tmp
+*.vcs
 
 # GCH
 *.h.gch
